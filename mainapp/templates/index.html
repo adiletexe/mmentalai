@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mental AI - Your AI Companion for Mental Wellness</title>
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /***************************************************************
+    *                       VARIABLES & BASE                      *
+    ***************************************************************/
+    :root {
+      /* COLORS */
+      --color-primary: #3D52A0;      /* Deep blue */
+      --color-secondary: #7091E6;    /* Light blue accent */
+      --color-bg-start: #E2E8FF;     /* Pastel lavender/blue */
+      --color-bg-end: #E8F0FF;       /* Lighter pastel shade */
+      --color-card: #F5F2FB;         /* Light lavender for cards */
+      --color-footer: rgba(255, 255, 255, 0.2);
+      --color-shadow: rgba(0, 0, 0, 0.05);
+      --color-white: #FFF;
+
+      /* ANIMATION SPEEDS & INTENSITIES */
+      --transition-speed: 0.4s;
+      --fade-duration: 0.7s;
+      --hover-tilt: 2deg;
+
+      /* GRADIENT ANIMATION */
+      --gradient-animation-duration: 10s;
+      --gradient-animation-timing: ease-in-out;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      line-height: 1.6;
+      color: var(--color-primary);
+      background: linear-gradient(
+        -45deg,
+        var(--color-bg-start),
+        var(--color-bg-end),
+        var(--color-bg-start)
+      );
+      background-size: 200% 200%;
+      /* Animate the background gradient */
+      animation: gradientFlow var(--gradient-animation-duration)
+        var(--gradient-animation-timing) infinite alternate;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /***************************************************************
+    *                         NAVBAR                              *
+    ***************************************************************/
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color var(--transition-speed),
+        box-shadow var(--transition-speed);
+      z-index: 1000;
+    }
+
+    .navbar.scrolled {
+      background-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 2px 4px var(--color-shadow);
+      backdrop-filter: blur(5px);
+    }
+
+    .navbar .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      position: relative;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+      transition: transform var(--transition-speed);
+    }
+
+    .navbar .logo:hover {
+      transform: scale(1.03) translateY(-2px);
+    }
+
+    .navbar ul {
+      list-style: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar ul li {
+      margin-left: 25px;
+    }
+
+    .navbar ul li a {
+      font-weight: 500;
+      color: var(--color-primary);
+      position: relative;
+      transition: color var(--transition-speed);
+    }
+
+    .navbar ul li a::after {
+      content: "";
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      background-color: var(--color-secondary);
+      left: 0;
+      bottom: -5px;
+      transition: width var(--transition-speed);
+    }
+
+    .navbar ul li a:hover::after {
+      width: 100%;
+    }
+
+    /* Toggle Button */
+    .toggle-btn {
+      margin-left: 25px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      font-size: 20px;
+      transition: color var(--transition-speed);
+    }
+
+    .toggle-btn:hover {
+      color: var(--color-secondary);
+      transform: scale(1.1);
+    }
+
+    /* Menu Icon for Mobile */
+    #menu-icon {
+      display: none;
+      margin-left: 25px;
+      font-size: 25px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      transition: color var(--transition-speed);
+    }
+
+    #menu-icon:hover {
+      color: var(--color-secondary);
+    }
+
+    /***************************************************************
+    *                         MOBILE MENU                         *
+    ***************************************************************/
+    .mobile-menu {
+      display: none;
+      position: absolute;
+      top: 70px;
+      right: 40px;
+      background-color: rgba(255, 255, 255, 0.95);
+      list-style: none;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      text-align: right;
+      z-index: 999;
+    }
+
+    .mobile-menu li {
+      margin-bottom: 10px;
+    }
+
+    .mobile-menu li a {
+      color: var(--color-primary);
+      font-weight: 500;
+      display: inline-block;
+    }
+
+    .mobile-menu.active {
+      display: block;
+    }
+
+    /***************************************************************
+    *                        HERO SECTION                         *
+    ***************************************************************/
+    .hero {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-content {
+      max-width: 800px;
+      opacity: 0;
+      transform: translateY(50px);
+      animation: fadeUp var(--fade-duration) 0.3s forwards;
+      animation-delay: 0.4s;
+    }
+
+    .hero-content h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--color-primary);
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+
+    .hero-content p {
+      font-size: 1.2rem;
+      color: var(--color-secondary);
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      background-color: var(--color-secondary);
+      color: var(--color-white);
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color var(--transition-speed),
+        transform var(--transition-speed);
+      box-shadow: 0 4px 6px var(--color-shadow);
+    }
+
+    .btn:hover {
+      background-color: var(--color-primary);
+      transform: translateY(-3px) scale(1.02);
+    }
+
+    .hero-content .subtext {
+      margin-top: 20px;
+      font-size: 1rem;
+      color: var(--color-primary);
+    }
+
+    /***************************************************************
+    *                       FEATURES SECTION                       *
+    ***************************************************************/
+    .features {
+      padding: 80px 20px;
+      background: var(--color-card);
+      text-align: center;
+      position: relative;
+    }
+
+    .features h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      color: var(--color-primary);
+      animation: fadeIn var(--fade-duration) ease;
+    }
+
+    .features-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .feature {
+      flex: 1 1 300px;
+      background: var(--color-card);
+      padding: 30px 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px var(--color-shadow);
+      text-align: center;
+      transition: transform var(--transition-speed), background-color var(--transition-speed);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn var(--fade-duration) ease;
+    }
+
+    .feature:hover {
+      transform: translateY(-10px) rotateX(var(--hover-tilt)) rotateY(var(--hover-tilt));
+      background-color: var(--color-secondary);
+    }
+
+    .feature svg {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 20px;
+      fill: var(--color-secondary);
+      transition: fill var(--transition-speed);
+    }
+
+    .feature:hover svg {
+      fill: var(--color-white);
+    }
+
+    .feature h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--color-primary);
+      transition: color var(--transition-speed);
+    }
+
+    .feature:hover h3 {
+      color: var(--color-white);
+    }
+
+    .feature p {
+      font-size: 1rem;
+      color: var(--color-secondary);
+      line-height: 1.5;
+      transition: color var(--transition-speed);
+    }
+
+    .feature:hover p {
+      color: var(--color-white);
+    }
+
+    /***************************************************************
+    *                      HOW TO USE SECTION                     *
+    ***************************************************************/
+    .how-to {
+      padding: 80px 20px;
+      text-align: center;
+      background-color: #ffffff;
+      position: relative;
+    }
+
+    .how-to h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      color: var(--color-primary);
+      animation: fadeIn var(--fade-duration) ease;
+    }
+
+    .steps-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      justify-content: center;
+    }
+
+    .step {
+      flex: 1 1 300px;
+      background-color: var(--color-card);
+      padding: 30px 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px var(--color-shadow);
+      text-align: center;
+      transition: transform var(--transition-speed);
+      animation: fadeIn var(--fade-duration) ease;
+    }
+
+    .step:hover {
+      transform: translateY(-10px) scale(1.03);
+    }
+
+    .step svg {
+      width: 60px;
+      height: 60px;
+      fill: var(--color-secondary);
+      margin-bottom: 20px;
+    }
+
+    .step h3 {
+      font-size: 1.4rem;
+      color: var(--color-primary);
+      margin-bottom: 15px;
+    }
+
+    .step p {
+      font-size: 1rem;
+      color: var(--color-secondary);
+      line-height: 1.5;
+    }
+
+    /***************************************************************
+    *                     DIAGRAM SECTION                         *
+    ***************************************************************/
+    .diagram-section {
+      padding: 80px 20px;
+      background: var(--color-footer);
+      text-align: center;
+    }
+
+    .diagram-section h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      color: var(--color-primary);
+      animation: fadeIn var(--fade-duration) ease;
+    }
+
+    .diagram-container {
+      max-width: 800px;
+      margin: 0 auto;
+      animation: fadeIn var(--fade-duration) ease;
+      overflow: hidden;
+    }
+
+    .diagram-svg {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .diagram-svg circle {
+      fill: var(--color-secondary);
+      transition: fill 0.3s;
+    }
+
+    .diagram-svg circle:hover {
+      fill: var(--color-primary);
+    }
+
+    .diagram-svg text {
+      fill: var(--color-white);
+      font-size: 1rem;
+      font-weight: 600;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+    }
+
+    .diagram-svg path {
+      stroke: var(--color-secondary);
+      stroke-width: 4;
+      fill: none;
+      stroke-linecap: round;
+    }
+
+    /***************************************************************
+    *                    TESTIMONIALS SECTION                     *
+    ***************************************************************/
+    .testimonials {
+      padding: 80px 20px;
+      background-color: #ffffff;
+      text-align: center;
+    }
+
+    .testimonials h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      color: var(--color-primary);
+      animation: fadeIn var(--fade-duration) ease;
+    }
+
+    .testimonial-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto 40px auto;
+      justify-items: center;
+    }
+
+    .testimonial {
+      background-color: var(--color-card);
+      border-radius: 15px;
+      box-shadow: 0 4px 6px var(--color-shadow);
+      padding: 30px 20px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity var(--fade-duration) ease, transform var(--fade-duration) ease;
+    }
+
+    .testimonial.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .testimonial p {
+      font-size: 1rem;
+      color: var(--color-primary);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .testimonial .author {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--color-secondary);
+    }
+
+    .carousel-controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .carousel-controls button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 50px;
+      background-color: var(--color-secondary);
+      color: var(--color-white);
+      cursor: pointer;
+      box-shadow: 0 2px 5px var(--color-shadow);
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+    }
+
+    .carousel-controls button:hover {
+      background-color: var(--color-primary);
+      transform: translateY(-2px);
+    }
+
+    /***************************************************************
+    *                         FOOTER SECTION                      *
+    ***************************************************************/
+    .footer {
+      padding: 60px 20px;
+      background: var(--color-footer);
+      text-align: center;
+    }
+
+    .social-icons {
+      margin-bottom: 20px;
+    }
+
+    .social-icons a {
+      display: inline-block;
+      margin: 0 10px;
+      font-size: 1.5rem;
+      text-decoration: none;
+      color: var(--color-primary);
+      transition: color var(--transition-speed), transform var(--transition-speed);
+    }
+
+    .social-icons a:hover {
+      color: var(--color-secondary);
+      transform: scale(1.2);
+    }
+
+    .footer form {
+      margin: 20px 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer form input[type="email"] {
+      padding: 10px;
+      border-radius: 20px;
+      border: 1px solid var(--color-secondary);
+      outline: none;
+      width: 220px;
+      font-size: 1rem;
+      transition: border-color var(--transition-speed);
+    }
+
+    .footer form input[type="email"]:focus {
+      border-color: var(--color-primary);
+    }
+
+    .footer form button {
+      padding: 10px 20px;
+      background-color: var(--color-secondary);
+      color: var(--color-white);
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+    }
+
+    .footer form button:hover {
+      background-color: var(--color-primary);
+      transform: scale(1.05);
+    }
+
+    .footer p {
+      font-size: 0.95rem;
+      color: var(--color-primary);
+      margin-top: 10px;
+    }
+
+    /***************************************************************
+    *                         MEDIA QUERIES                       *
+    ***************************************************************/
+    @media screen and (max-width: 992px) {
+      #menu-icon {
+        display: inline-block;
+      }
+
+      .navbar ul {
+        display: none;
+      }
+
+      .hero-content h1 {
+        font-size: 2rem;
+      }
+
+      .hero-content p {
+        font-size: 1rem;
+      }
+    }
+
+    /***************************************************************
+    *                          KEYFRAMES                          *
+    ***************************************************************/
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeUp {
+      0% {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes gradientFlow {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 100% 50%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="logo">Mental AI</div>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how-to">How It Works</a></li>
+      <li><a href="#testimonials">Testimonials</a></li>
+      <li><a href="#contact">Contact</a></li>
+
+      <!-- If user is authenticated, show Start Therapy; otherwise Sign Up & Login -->
+      {% if user.is_authenticated %}
+        <li><a href="{% url 'profile' %}">Start Therapy</a></li>
+      {% else %}
+        <li><a href="{% url 'signupsystem' %}">Sign Up</a></li>
+        <li><a href="{% url 'loginsystem' %}">Login</a></li>
+      {% endif %}
+    </ul>
+    <!-- Dark Mode Toggle (still placeholder) -->
+    <button class="toggle-btn" id="theme-toggle" aria-label="Toggle Dark Mode">🌓</button>
+    <!-- Mobile Menu Icon -->
+    <button class="menu-icon" id="menu-icon" aria-label="Toggle Menu">☰</button>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <ul class="mobile-menu" id="mobile-menu">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how-to">How It Works</a></li>
+    <li><a href="#testimonials">Testimonials</a></li>
+    <li><a href="#contact">Contact</a></li>
+
+    {% if user.is_authenticated %}
+      <li><a href="{% url 'profile' %}">Start Therapy</a></li>
+    {% else %}
+      <li><a href="{% url 'signupsystem' %}">Sign Up</a></li>
+      <li><a href="{% url 'loginsystem' %}">Login</a></li>
+    {% endif %}
+  </ul>
+
+  <!-- HERO SECTION -->
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <h1>Your AI Companion for Mental Wellness</h1>
+      <p>
+        Experience personalized support and guidance on your journey to better
+        mental health with our AI-powered platform.
+      </p>
+
+      <!-- If user is authenticated, go to profile; else go to login -->
+      {% if user.is_authenticated %}
+        <button class="btn" onclick="window.location.href='{% url 'profile' %}'">Start Your Journey</button>
+      {% else %}
+        <button class="btn" onclick="window.location.href='{% url 'loginsystem' %}'">Start Your Journey</button>
+      {% endif %}
+
+      <div class="subtext">Over 10,000+ users trust Mental AI.</div>
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION -->
+  <section class="features" id="features">
+    <h2>Features</h2>
+    <div class="features-container">
+      <div class="feature fade-in">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M12 3C6.486 3 2 6.589 2 11c0 2.38 1.031 4.56 2.758 6.095L2 21l4.905-2.758C10.44 22.969 12.62 24 15 24c4.411 0 8-3.486 8-8s-3.589-8-8-8zm0 14c-2.761 0-5-2.239-5-5s2.239-5 5-5 5 2.239 5 5-2.239 5-5 5z"
+          ></path>
+        </svg>
+        <h3>Personalized Chat</h3>
+        <p>
+          Engage in evidence-based, empathetic AI conversations tailored to your
+          unique needs.
+        </p>
+      </div>
+      <div class="feature fade-in">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M12 4.248c-3.148-5.402-12-3.825-12 2.944 0 3.414 2.61 6.185 6.465 8.609L12 21l5.535-5.199C21.39 13.433 24 10.662 24 7.248c0-6.769-8.852-8.346-12-2.944z"
+          ></path>
+        </svg>
+        <h3>Mood Tracking</h3>
+        <p>
+          Log your emotions and track trends to gain better self-awareness and
+          insights.
+        </p>
+      </div>
+      <div class="feature fade-in">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M19 3h-14c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-14c0-1.103-.897-2-2-2zm-2 14h-10v-2h10v2zm0-4h-10v-2h10v2zm0-4h-10v-2h10v2z"
+          ></path>
+        </svg>
+        <h3>Guided Exercises</h3>
+        <p>
+          Access mindfulness and relaxation techniques to help you destress and
+          stay centered.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW TO USE SECTION -->
+  <section class="how-to" id="how-to">
+    <h2>How to Use Mental AI</h2>
+    <div class="steps-container">
+      <div class="step fade-in">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M19 3h-14c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-14c0-1.103-.897-2-2-2zm-2 14h-10v-2h10v2zm0-4h-10v-2h10v2zm0-4h-10v-2h10v2z"
+          ></path>
+        </svg>
+        <h3>Sign Up</h3>
+        <p>Create your free account and set up your personal profile in minutes.</p>
+      </div>
+      <div class="step fade-in">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M12 2C8.13401 2 5 5.13401 5 9c0 3.866 3.13401 7 7 7s7-3.134 7-7c0-3.86599-3.134-7-7-7zm0 12c-2.76142 0-5-2.23858-5-5s2.23858-5 5-5 5 2.23858 5 5-2.23858 5-5 5z"
+          ></path>
+        </svg>
+        <h3>Customize</h3>
+        <p>
+          Tailor the AI settings to match your personal mental wellness goals.
+        </p>
+      </div>
+      <div class="step fade-in">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M19 3h-14c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-14c0-1.103-.897-2-2-2zm-2 14h-10v-2h10v2zm0-4h-10v-2h10v2zm0-4h-10v-2h10v2z"
+          ></path>
+        </svg>
+        <h3>Engage</h3>
+        <p>
+          Start interacting with your AI companion through chat, mood tracking,
+          and exercises.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS SECTION -->
+  <section class="testimonials" id="testimonials">
+    <h2>Testimonials</h2>
+    <div class="testimonial-container">
+      <div class="testimonial visible">
+        <p>
+          "Mental AI has transformed how I manage my anxiety. The personalized
+          chats are incredibly supportive."
+        </p>
+        <div class="author">- Sarah T.</div>
+      </div>
+      <div class="testimonial fade-in">
+        <p>
+          "The mood tracking feature helps me understand my emotions better and
+          track my progress over time."
+        </p>
+        <div class="author">- Michael B.</div>
+      </div>
+      <div class="testimonial fade-in">
+        <p>
+          "Guided exercises are perfect for my daily relaxation and have
+          significantly reduced my stress levels."
+        </p>
+        <div class="author">- Emily R.</div>
+      </div>
+      <div class="testimonial fade-in">
+        <p>
+          "With Mental AI, I feel more in control of my mental health journey.
+          Highly recommend it to everyone!"
+        </p>
+        <div class="author">- David L.</div>
+      </div>
+    </div>
+    <!-- CAROUSEL CONTROLS -->
+    <div class="carousel-controls">
+      <button id="prev-btn">Previous</button>
+      <button id="next-btn">Next</button>
+    </div>
+  </section>
+
+  <!-- FOOTER SECTION -->
+  <section class="footer" id="contact">
+    <div class="social-icons">
+      <a href="#" aria-label="Facebook">🔵</a>
+      <a href="#" aria-label="Twitter">🐦</a>
+      <a href="#" aria-label="Instagram">📸</a>
+      <a href="#" aria-label="LinkedIn">🔗</a>
+    </div>
+    <form>
+      <input
+        type="email"
+        placeholder="Enter your email"
+        required
+        aria-label="Email Address"
+      />
+      <button type="submit">Subscribe</button>
+    </form>
+    <p>&copy; 2024 Mental AI. All rights reserved.</p>
+  </section>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    /***************************************************************
+    *                     NAVBAR ON SCROLL                        *
+    ***************************************************************/
+    window.addEventListener("scroll", function() {
+      const navbar = document.querySelector(".navbar");
+      if (window.scrollY > 80) {
+        navbar.classList.add("scrolled");
+      } else {
+        navbar.classList.remove("scrolled");
+      }
+    });
+
+    /***************************************************************
+    *                   TESTIMONIALS CAROUSEL                     *
+    ***************************************************************/
+    const testimonials = document.querySelectorAll(".testimonial");
+    let currentTestimonialIndex = 0;
+    const totalTestimonials = testimonials.length;
+
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+
+    // Show 4 testimonials at a time
+    function showTestimonials(index) {
+      testimonials.forEach((testimonial, i) => {
+        if (i >= index && i < index + 4) {
+          testimonial.classList.add("visible");
+        } else {
+          testimonial.classList.remove("visible");
+        }
+      });
+    }
+
+    showTestimonials(currentTestimonialIndex);
+
+    prevBtn.addEventListener("click", () => {
+      if (currentTestimonialIndex - 4 >= 0) {
+        currentTestimonialIndex -= 4;
+        showTestimonials(currentTestimonialIndex);
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (currentTestimonialIndex + 4 < totalTestimonials) {
+        currentTestimonialIndex += 4;
+        showTestimonials(currentTestimonialIndex);
+      }
+    });
+
+    // Optional auto-slide
+    // setInterval(() => {
+    //   if (currentTestimonialIndex + 4 < totalTestimonials) {
+    //     currentTestimonialIndex += 4;
+    //   } else {
+    //     currentTestimonialIndex = 0;
+    //   }
+    //   showTestimonials(currentTestimonialIndex);
+    // }, 10000);
+
+    /***************************************************************
+    *                    MOBILE MENU TOGGLE                       *
+    ***************************************************************/
+    const menuIcon = document.getElementById("menu-icon");
+    const mobileMenu = document.getElementById("mobile-menu");
+
+    menuIcon.addEventListener("click", () => {
+      mobileMenu.classList.toggle("active");
+    });
+
+    /***************************************************************
+    *                       DARK MODE TOGGLE                      *
+    ***************************************************************/
+    const toggleBtn = document.getElementById("theme-toggle");
+    toggleBtn.addEventListener("click", function() {
+      // Placeholder alert; replace with real theme toggle if desired
+      alert("Dark mode toggle placeholder!");
+    });
+  </script>
+</body>
+</html>

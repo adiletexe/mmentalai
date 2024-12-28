@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Space Grotesk', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            background: linear-gradient(135deg, #EDE8F5 0%, #ADBBDa 100%);
+            color: #3D52A0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit; text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #7091E6;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-container h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #3D52A0;
+        }
+
+        .login-container form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .login-container input {
+            padding: 10px 15px;
+            border: 1px solid #ADBBDa;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #3D52A0;
+            background: #F5F2FB;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .login-container input:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(61, 82, 160, 0.5);
+        }
+
+        .login-container button {
+            background: #7091E6;
+            color: #EDE8F5;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .login-container button:hover {
+            background: #3D52A0;
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .login-container p {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #3D52A0;
+        }
+
+        .login-container p a {
+            color: #7091E6;
+            font-weight: 600;
+        }
+
+        .login-container p a:hover {
+            color: #3D52A0;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" id="username" name="username" placeholder="Email" required>
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <button type="submit" id="login-button">Login</button>
+        </form>
+        <div class="error-message">{{ error }}</div>
+        <p>Don't have an account? <a href="{% url 'signupsystem' %}">Register here!</a></p>
+    </div>
+</body>
+</html>

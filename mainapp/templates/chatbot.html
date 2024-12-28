@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mental AI - AI Psychologist</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      /* Color Variables */
+      --primary-text: #3D52A0; /* Deep Blue for text/icons */
+      --button-bg: #7091E6;    /* Lighter blue for buttons */
+      --bg-gradient-start: #EDE8F5; /* Soft lavender */
+      --bg-gradient-end: #ADBBDa;   /* Muted light blue */
+      --card-bg: #F5F2FB;     /* Very light lavender for cards/sections */
+      --accent-positive: #2ecc71; /* Green for hover states */
+      --accent-negative: #e74c3c; /* Red for negative states */
+      --shadow-light: rgba(0,0,0,0.05);
+      --nav-translucent: rgba(255,255,255,0.6);
+
+      /* Layout Variable */
+      --chat-width: 700px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: "Poppins", sans-serif;
+      color: var(--primary-text);
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    }
+
+    /* Layout: Sidebar | Chat | Right Panel */
+    body {
+      display: grid;
+      grid-template-columns: 80px 1fr 350px;
+      overflow: hidden;
+    }
+
+    /**************************************************************
+     *                          SIDEBAR                          *
+     **************************************************************/
+    .sidebar {
+      background: var(--nav-translucent);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      backdrop-filter: blur(10px);
+      border-right: 1px solid var(--shadow-light);
+    }
+
+    .nav-item {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px 0;
+      transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .nav-item svg {
+      fill: var(--primary-text);
+      width: 24px;
+      height: 24px;
+    }
+
+    /**************************************************************
+     *                        CHAT AREA                          *
+     **************************************************************/
+    .chat-area {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Instructions button (floating circle) */
+    .instructions-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--card-bg);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 5px var(--shadow-light);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.3s, background 0.3s;
+    }
+    .instructions-button:hover {
+      transform: scale(1.1) translateY(-2px);
+      background: rgba(255,255,255,0.8);
+    }
+
+    .instructions-button svg {
+      fill: var(--primary-text);
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Instructions Modal */
+    .instructions-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+    }
+
+    .instructions-content {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      max-width: 400px;
+      text-align: center;
+      animation: fadeInScale 0.3s ease-in-out forwards;
+    }
+
+    .instructions-content h2 {
+      margin-bottom: 15px;
+      font-size: 1.4rem;
+      color: var(--primary-text);
+    }
+
+    .instructions-content p {
+      font-size: 1rem;
+      color: var(--primary-text);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .instructions-content button {
+      background: var(--button-bg);
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .instructions-content button:hover {
+      background: var(--accent-positive);
+    }
+
+    @keyframes fadeInScale {
+      0% {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* Chat window (scrollable) */
+    .chat-window {
+      flex: 1;
+      overflow-y: auto;
+      margin: 0 auto 20px auto;
+      max-width: var(--chat-width);
+      width: 100%;
+      padding-right: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--button-bg) transparent;
+      position: relative;
+    }
+
+    .chat-window::-webkit-scrollbar {
+      width: 8px;
+    }
+    .chat-window::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .chat-window::-webkit-scrollbar-thumb {
+      background: var(--button-bg);
+      border-radius: 4px;
+    }
+
+    /* Messages */
+    .message {
+      margin-bottom: 20px;
+      display: flex;
+      animation: fadeInUp 0.5s forwards ease-out;
+      opacity: 0;
+      transform: translateY(20px);
+      align-items: flex-end;
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+    .message.ai {
+      justify-content: flex-start;
+    }
+
+    /* Avatars */
+    .avatar {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 10px;
+      margin-left: 10px;
+      box-shadow: 0 2px 5px var(--shadow-light);
+    }
+
+    .message.user .avatar {
+      order: 2;
+      margin-left: 10px;
+      margin-right: 0;
+    }
+    .message.user .text {
+      margin-right: 10px;
+    }
+
+    .message.ai .avatar {
+      order: 0;
+    }
+
+    .avatar svg {
+      fill: var(--primary-text);
+      width: 24px;
+      height: 24px;
+    }
+
+    /* Chat bubbles */
+    .text {
+      max-width: 70%;
+      padding: 12px 16px;
+      border-radius: 20px;
+      font-size: 1rem;
+      line-height: 1.4;
+      word-break: break-word;
+      position: relative;
+      box-shadow: 0 4px 10px var(--shadow-light);
+    }
+
+    .message.user .text {
+      background: var(--button-bg);
+      color: #fff;
+      border-bottom-right-radius: 0;
+    }
+    .message.ai .text {
+      background: var(--card-bg);
+      border-bottom-left-radius: 0;
+      color: var(--primary-text);
+    }
+
+    /* Arrows */
+    .text::before {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-style: solid;
+    }
+
+    .message.user .text::before {
+      border-width: 10px 0 10px 10px;
+      border-color: transparent transparent transparent var(--button-bg);
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .message.ai .text::before {
+      border-width: 10px 10px 10px 0;
+      border-color: transparent var(--card-bg) transparent transparent;
+      left: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Typing indicator */
+    .typing-indicator {
+      background: var(--card-bg);
+      color: var(--primary-text);
+      border-radius: 20px;
+      padding: 10px 15px;
+      font-size: 1rem;
+      display: inline-block;
+      position: relative;
+      border-bottom-left-radius: 0;
+      box-shadow: 0 4px 10px var(--shadow-light);
+    }
+
+    .typing-indicator span {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--primary-text);
+      border-radius: 50%;
+      margin: 0 2px;
+      animation: typing 1s infinite ease-in-out;
+    }
+
+    .typing-indicator span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+      0% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    /* Chat input area */
+    .chat-input-container {
+      margin: 0 auto;
+      max-width: var(--chat-width);
+      width: 100%;
+    }
+
+    .chat-input {
+      display: flex;
+      padding: 15px 0;
+      border-top: 1px solid var(--shadow-light);
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 20px;
+      outline: none;
+      font-size: 1rem;
+      font-weight: 500;
+      background: #fff;
+      color: #333;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+      transition: box-shadow 0.3s;
+    }
+    .chat-input input:focus {
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.15);
+    }
+
+    .chat-input button {
+      background: var(--button-bg);
+      border: none;
+      color: #fff;
+      padding: 0 20px;
+      margin-left: 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: background 0.3s, transform 0.3s;
+      box-shadow: 0 2px 5px var(--shadow-light);
+    }
+    .chat-input button:hover {
+      background: var(--accent-positive);
+      transform: scale(1.05);
+    }
+
+    /**************************************************************
+     *                      RIGHT PANEL                          *
+     **************************************************************/
+    .right-panel {
+      background: var(--nav-translucent);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      border-left: 1px solid var(--shadow-light);
+      overflow-y: auto;
+    }
+
+    .right-panel h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-align: center;
+      color: var(--primary-text);
+    }
+
+    .section {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px var(--shadow-light);
+    }
+
+    .section h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--primary-text);
+    }
+
+    /* Mood Section */
+    .mood-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .mood-emoji {
+      font-size: 2rem;
+    }
+
+    .mood-slider {
+      width: 100%;
+      height: 4px;
+      background: #fff;
+    }
+    .mood-slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--button-bg);
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+
+    /* Tone Section */
+    .tone-section select {
+      padding: 10px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid var(--shadow-light);
+      color: #333;
+      font-size: 1rem;
+      transition: background 0.3s;
+      width: 100%;
+    }
+    .tone-section select:focus {
+      background: rgba(255,255,255,0.9);
+    }
+
+    /* Special Instructions */
+    .special-instructions textarea {
+      width: 100%;
+      height: 80px;
+      border-radius: 8px;
+      border: 1px solid var(--shadow-light);
+      padding: 10px;
+      font-size: 1rem;
+      resize: none;
+      background: #fff;
+      color: #333;
+    }
+
+    /* Meditation Section */
+    .meditation-section {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+      text-align: center;
+    }
+    .meditation-time {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-text);
+    }
+    .meditation-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .meditation-controls button {
+      background: var(--button-bg);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .meditation-controls button:hover {
+      background: var(--accent-positive);
+      transform: scale(1.05);
+    }
+    .meditation-instructions {
+      font-size: 0.9rem;
+      color: var(--primary-text);
+    }
+    .audio-container {
+      width: 100%;
+    }
+    audio {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    /* Welcome & Try Asking Section */
+    .welcome-section {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 30px;
+      margin: 20px auto;
+      max-width: var(--chat-width);
+      text-align: center;
+      box-shadow: 0 4px 10px var(--shadow-light);
+      animation: fadeInScale 0.5s ease forwards;
+    }
+
+    .welcome-section h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--primary-text);
+    }
+
+    .welcome-section p {
+      font-size: 1rem;
+      color: var(--primary-text);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .try-asking {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      animation: fadeInUp 0.5s ease forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .try-asking h2 {
+      font-size: 1.2rem;
+      color: var(--primary-text);
+      margin-bottom: 10px;
+    }
+
+    .try-asking .prompts {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .try-asking .prompts button {
+      background: #fff;
+      color: var(--primary-text);
+      border: 1px solid var(--shadow-light);
+      border-radius: 20px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: transform 0.3s, background 0.3s, color 0.3s;
+      box-shadow: 0 2px 5px var(--shadow-light);
+    }
+    .try-asking .prompts button:hover {
+      transform: translateY(-2px) scale(1.05);
+      background: var(--button-bg);
+      color: #fff;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 992px) {
+      body {
+        grid-template-columns: 60px 1fr 250px;
+      }
+      .meditation-time {
+        font-size: 1.3rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        grid-template-columns: 60px 1fr;
+        grid-template-rows: auto 300px;
+        overflow: hidden;
+      }
+      .right-panel {
+        grid-column: 1 / 3;
+        grid-row: 2 / 3;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- SIDEBAR / NAVBAR -->
+  <div class="sidebar">
+    <!-- Home Link -->
+    <a href="{% url 'index' %}">
+      <div class="nav-item" title="Home">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 3l10 9h-3v9h-14v-9h-3z"/>
+        </svg>
+      </div>
+    </a>
+    <!-- Chatbot Link -->
+    <a href="{% url 'chatbot' %}">
+      <div class="nav-item" title="Therapy">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M4 10h16v2h-16zm2 5h12v2h-12z"/>
+        </svg>
+      </div>
+    </a>
+    <!-- Profile Link -->
+    <a href="{% url 'profile' %}">
+      <div class="nav-item" title="Profile">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 12c2.7 0 4.5-2 4.5-4.5S14.7 3 12 3 7.5 5 7.5 7.5 9.3 12 12 12zM12 14c-3 0-9 1.5-9 4.5V21h18v-2.5C21 15.5 15 14 12 14z"/>
+        </svg>
+      </div>
+    </a>
+    <!-- Logout Link -->
+    <a href="{% url 'logoutsystem' %}">
+      <div class="nav-item" title="Logout">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M14 7v-3.5c0-0.276-0.224-0.5-0.5-0.5h-9c-0.276 0-0.5 0.224-0.5 0.5v17c0 0.276 0.224 0.5 0.5 0.5h9c0.276 0 0.5-0.224 0.5-0.5v-3.5h-2v2h-7v-15h7v2h2zM18.293 7.293l-5.293 5.293 5.293 5.293 1.414-1.414-3.879-3.879h8.172v-2h-8.172l3.879-3.879z"/>
+        </svg>
+      </div>
+    </a>
+  </div>
+
+  <!-- CHAT AREA -->
+  <div class="chat-area">
+    <!-- Instructions Button -->
+    <div class="instructions-button" id="instructions-btn" title="How to use Mental AI">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path
+          d="M12 2C6.477 2 2 6.374 2 11.842 2 16.838 5.888 20.61 10.701 21.287c.537.098.732-.224.732-.5 0-.246-.009-.895-.014-1.758-2.033.413-2.609-.955-2.609-.955-.486-1.173-1.192-1.484-1.192-1.484-.975-.646.073-.633.073-.633 1.077.074 1.646 1.042 1.646 1.042.958 1.575 2.514 1.119 3.128.855.096-.669.37-1.12.67-1.378-1.626-.178-3.333-.789-3.333-3.516 0-.777.273-1.411.72-1.906-.073-.178-.312-.9.069-1.872 0 0 .6-.187 1.97.723A6.999 6.999 0 0 1 12 6.49a7.023 7.023 0 0 1 1.8.242c1.368-.909 1.968-.723 1.968-.723.383.973.144 1.694.072 1.872.448.494.72 1.128.72 1.906 0 2.735-1.71 3.336-3.343 3.511.384.32.72.952.72 1.916 0 1.38-.013 2.494-.013 2.83 0 .277.193.6.74.498C18.113 20.602 22 16.836 22 11.842 22 6.374 17.523 2 12 2z"
+        />
+      </svg>
+    </div>
+
+    <!-- Instructions Modal -->
+    <div class="instructions-modal" id="instructions-modal">
+      <div class="instructions-content">
+        <h2>How to Use Mental AI</h2>
+        <p>
+          Mental AI is your AI psychologist. Use the mood slider on the right to
+          describe your mood. Choose a chatbot tone, add special instructions,
+          or try meditation. Ask any question or share any concern and the AI
+          will respond.
+        </p>
+        <button id="close-instructions">Close</button>
+      </div>
+    </div>
+
+    <!-- Chat window -->
+    <div class="chat-window" id="chat-window">
+      <div class="welcome-section" id="welcome-section">
+        <h1>Welcome to Mental AI</h1>
+        <p>
+          Hello! I’m your AI psychologist. Feel free to share what’s on your
+          mind. I’m here to listen, provide guidance, and help you navigate your
+          thoughts and feelings.
+        </p>
+        <div class="try-asking" id="try-asking">
+          <h2>Try asking:</h2>
+          <div class="prompts">
+            <button class="prompt-btn">I feel anxious about the future</button>
+            <button class="prompt-btn">I'm having trouble sleeping</button>
+            <button class="prompt-btn">I need help dealing with stress</button>
+            <button class="prompt-btn">I'm feeling lonely lately</button>
+            <button class="prompt-btn">How can I improve my mood?</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat input -->
+    <div class="chat-input-container">
+      <div class="chat-input">
+        <input
+          type="text"
+          id="user-input"
+          placeholder="How are you feeling today?"
+          autocomplete="off"
+        />
+        <button id="send-btn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <h2>Your Settings & Wellness</h2>
+
+    <!-- Mood Section -->
+    <div class="section mood-section">
+      <h3>Your Mood</h3>
+      <div class="mood-emoji" id="mood-emoji">😐</div>
+      <input type="range" min="0" max="9" value="4" class="mood-slider" id="mood-slider">
+    </div>
+
+    <!-- Tone Section -->
+    <div class="section tone-section">
+      <h3>Chatbot Tone</h3>
+      <select id="tone-select">
+        <option value="friendly">Friendly</option>
+        <option value="professional">Professional</option>
+        <option value="empathetic" selected>Empathetic</option>
+        <option value="humorous">Humorous</option>
+        <option value="supportive">Supportive</option>
+        <option value="direct">Direct</option>
+        <option value="motivational">Motivational</option>
+        <option value="reflective">Reflective</option>
+      </select>
+    </div>
+
+    <!-- Special Instructions Section -->
+    <div class="section special-instructions">
+      <h3>Special Instructions</h3>
+      <textarea
+        id="special-instructions"
+        placeholder="Any personal circumstances or notes you'd like the chatbot to know?"
+      ></textarea>
+    </div>
+
+    <!-- Meditation Section -->
+    <div class="section meditation-section">
+      <h3>Meditation</h3>
+      <div class="meditation-instructions">
+        Click Start to begin a guided meditation. Relax and focus on your breath.
+      </div>
+      <div class="meditation-time" id="meditation-time">00:00</div>
+      <div class="meditation-controls" id="meditation-controls-initial">
+        <button id="start-meditation">Start</button>
+        <button id="stop-meditation">Stop</button>
+      </div>
+      <div class="meditation-controls" id="meditation-controls-play-reset" style="display:none;">
+        <button id="play-meditation">Play</button>
+        <button id="reset-meditation">Reset</button>
+      </div>
+      <div class="audio-container" id="audio-container" style="display:none;">
+        <audio
+          id="meditation-audio"
+          src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+        ></audio>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const sendBtn = document.getElementById("send-btn");
+      const userInput = document.getElementById("user-input");
+      const chatWindow = document.getElementById("chat-window");
+      const moodSlider = document.getElementById("mood-slider");
+      const moodEmoji = document.getElementById("mood-emoji");
+      const meditationTime = document.getElementById("meditation-time");
+      const startMeditationBtn = document.getElementById("start-meditation");
+      const stopMeditationBtn = document.getElementById("stop-meditation");
+      const playMeditationBtn = document.getElementById("play-meditation");
+      const resetMeditationBtn = document.getElementById("reset-meditation");
+      const toneSelect = document.getElementById("tone-select");
+      const meditationAudio = document.getElementById("meditation-audio");
+      const audioContainer = document.getElementById("audio-container");
+      const initialControls = document.getElementById("meditation-controls-initial");
+      const playResetControls = document.getElementById("meditation-controls-play-reset");
+      const specialInstructions = document.getElementById("special-instructions");
+      const instructionsBtn = document.getElementById("instructions-btn");
+      const instructionsModal = document.getElementById("instructions-modal");
+      const closeInstructions = document.getElementById("close-instructions");
+      const tryAskingSection = document.getElementById("try-asking");
+      const promptButtons = document.querySelectorAll(".prompt-btn");
+
+      let meditationInterval = null;
+      let meditationSeconds = 0;
+      let tryAskingVisible = true; // Track if "Try asking" section is visible
+
+      const moodEmojis = ["😭","😢","😟","😕","😐","🙂","😊","😃","😁","🤩"];
+
+      /* Update mood emoji upon slider input */
+      moodSlider.addEventListener("input", () => {
+        const val = parseInt(moodSlider.value, 10);
+        moodEmoji.textContent = moodEmojis[val];
+      });
+
+      /* Meditation controls */
+      startMeditationBtn.addEventListener("click", startMeditation);
+      stopMeditationBtn.addEventListener("click", stopMeditation);
+      playMeditationBtn.addEventListener("click", playMeditationFunc);
+      resetMeditationBtn.addEventListener("click", resetMeditation);
+
+      function startMeditation() {
+        if (meditationInterval) return;
+        meditationSeconds = 0;
+        updateMeditationTime(meditationSeconds);
+        meditationInterval = setInterval(() => {
+          meditationSeconds++;
+          updateMeditationTime(meditationSeconds);
+        }, 1000);
+        audioContainer.style.display = "block";
+        meditationAudio.currentTime = 0;
+        meditationAudio.play();
+        startMeditationBtn.disabled = true;
+      }
+
+      function stopMeditation() {
+        if (!meditationInterval) return;
+        clearInterval(meditationInterval);
+        meditationInterval = null;
+        meditationAudio.pause();
+        initialControls.style.display = "none";
+        playResetControls.style.display = "flex";
+      }
+
+      function playMeditationFunc() {
+        meditationAudio.play();
+        meditationInterval = setInterval(() => {
+          meditationSeconds++;
+          updateMeditationTime(meditationSeconds);
+        }, 1000);
+        initialControls.style.display = "flex";
+        playResetControls.style.display = "none";
+        startMeditationBtn.disabled = true;
+      }
+
+      function resetMeditation() {
+        if (meditationInterval) clearInterval(meditationInterval);
+        meditationInterval = null;
+        meditationAudio.pause();
+        meditationAudio.currentTime = 0;
+        meditationSeconds = 0;
+        updateMeditationTime(meditationSeconds);
+        audioContainer.style.display = "none";
+        initialControls.style.display = "flex";
+        playResetControls.style.display = "none";
+        startMeditationBtn.disabled = false;
+      }
+
+      function updateMeditationTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        meditationTime.textContent = `${mins.toString().padStart(2,"0")}:${secs
+          .toString()
+          .padStart(2,"0")}`;
+      }
+
+      /* Prompt buttons (preset queries) */
+      promptButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          userInput.value = btn.textContent;
+          sendMessage();
+        });
+      });
+
+      /* Event listeners for sending messages */
+      sendBtn.addEventListener("click", sendMessage);
+      userInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          sendMessage();
+        }
+      });
+
+      function sendMessage() {
+        const message = userInput.value.trim();
+        if (!message) return;
+
+        if (tryAskingVisible) {
+          tryAskingSection.style.display = "none";
+          tryAskingVisible = false;
+        }
+
+        appendMessage("user", message);
+        userInput.value = "";
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        const typingEl = appendTypingIndicator();
+
+        /* Here is where we gather chatbot settings to pass to the backend. */
+        const moodValue = moodSlider.value;    // e.g. "4"
+        const toneValue = toneSelect.value;    // e.g. "empathetic"
+        const instructionsValue = specialInstructions.value.trim();
+
+        /* Make a POST request including mood, tone, instructions. 
+           In your views.py, adjust the system prompt or memory 
+           according to these values. */
+        fetch("/get_response/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(),
+          },
+          body: JSON.stringify({
+            message: message,
+            mood: moodValue,
+            tone: toneValue,
+            instructions: instructionsValue,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (typingEl && typingEl.parentNode === chatWindow) {
+              chatWindow.removeChild(typingEl);
+            }
+            appendMessage("ai", data.message);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            if (typingEl && typingEl.parentNode === chatWindow) {
+              chatWindow.removeChild(typingEl);
+            }
+            appendMessage("ai", "Sorry, something went wrong.");
+          });
+      }
+
+      /* Append user or AI message to the chat window */
+      function appendMessage(sender, text) {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", sender);
+
+        const avatarDiv = document.createElement("div");
+        avatarDiv.classList.add("avatar");
+        if (sender === "user") {
+          avatarDiv.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M12 12c2.7 0 4.5-2 4.5-4.5S14.7 3 12 3 7.5 5 7.5 7.5 9.3 12 12 12zM12 14c-3 0-9 1.5-9 4.5V21h18v-2.5C21 15.5 15 14 12 14z"/>
+            </svg>`;
+        } else {
+          avatarDiv.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 2.5 1.31 4.67 3.29 6.09C7.41 16.26 7 17.08 7 18v3c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-3c0-.92-.41-1.74-1.29-2.91C17.69 13.67 19 11.5 19 9c0-3.87-3.13-7-7-7z"/>
+            </svg>`;
+        }
+
+        const textDiv = document.createElement("div");
+        textDiv.classList.add("text");
+        if (text === "typing") {
+          /* If the text is 'typing', show an animated typing indicator */
+          const typingIndicator = document.createElement("div");
+          typingIndicator.classList.add("typing-indicator");
+          typingIndicator.innerHTML = "<span></span><span></span><span></span>";
+          textDiv.appendChild(typingIndicator);
+        } else {
+          typeText(textDiv, text, () => {
+            chatWindow.scrollTo({
+              top: chatWindow.scrollHeight,
+              behavior: "smooth",
+            });
+          });
+        }
+
+        if (sender === "user") {
+          messageDiv.appendChild(textDiv);
+          messageDiv.appendChild(avatarDiv);
+        } else {
+          messageDiv.appendChild(avatarDiv);
+          messageDiv.appendChild(textDiv);
+        }
+
+        chatWindow.appendChild(messageDiv);
+        chatWindow.scrollTo({
+          top: chatWindow.scrollHeight,
+          behavior: "smooth",
+        });
+        return messageDiv;
+      }
+
+      /* Show a typing indicator for AI */
+      function appendTypingIndicator() {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", "ai");
+
+        const avatarDiv = document.createElement("div");
+        avatarDiv.classList.add("avatar");
+        avatarDiv.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 2.5 1.31 4.67 3.29 6.09C7.41 16.26 7 17.08 7 18v3c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-3c0-.92-.41-1.74-1.29-2.91C17.69 13.67 19 11.5 19 9c0-3.87-3.13-7-7-7z"/>
+          </svg>`;
+
+        const typingDiv = document.createElement("div");
+        typingDiv.classList.add("typing-indicator");
+        typingDiv.innerHTML = "<span></span><span></span><span></span>";
+
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(typingDiv);
+        chatWindow.appendChild(messageDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        return messageDiv;
+      }
+
+      /* Animate text to appear letter by letter */
+      function typeText(element, text, callback, index = 0) {
+        if (index < text.length) {
+          element.textContent = text.slice(0, index + 1);
+
+          chatWindow.scrollTo({
+            top: chatWindow.scrollHeight,
+            behavior: "smooth",
+          });
+
+          setTimeout(() => typeText(element, text, callback, index + 1), 20);
+        } else {
+          if (callback) callback();
+        }
+      }
+
+      /* Retrieve Django CSRF token from cookies */
+      function getCSRFToken() {
+        let cookieValue = null;
+        const name = "csrftoken";
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + "=")) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+
+      /* Modal open/close for instructions */
+      instructionsBtn.addEventListener("click", () => {
+        instructionsModal.style.display = "flex";
+      });
+
+      closeInstructions.addEventListener("click", () => {
+        instructionsModal.style.display = "none";
+      });
+
+      window.addEventListener("click", (e) => {
+        if (e.target === instructionsModal) {
+          instructionsModal.style.display = "none";
+        }
+      });
+    });
+  </script>
+</body>
+</html>

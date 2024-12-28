@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mental AI - Your Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary-text: #3D52A0;
+      --button-bg: #7091E6;
+      --bg-gradient-start: #EDE8F5;
+      --bg-gradient-end: #ADBBDa;
+      --card-bg: #F5F2FB;
+      --accent-positive: #2ecc71;
+      --accent-negative: #e74c3c;
+      --shadow-light: rgba(0,0,0,0.05);
+      --nav-translucent: rgba(255,255,255,0.6);
+      --sidebar-width: 80px;
+      --right-panel-width: 350px;
+      --transition-speed: 0.3s;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      color: var(--primary-text);
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    }
+
+    body {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr var(--right-panel-width);
+      overflow: hidden;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      background: var(--nav-translucent);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      backdrop-filter: blur(10px);
+      border-right: 1px solid var(--shadow-light);
+    }
+
+    .nav-item {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px 0;
+      transition: background var(--transition-speed), transform var(--transition-speed);
+      cursor: pointer;
+    }
+    .nav-item:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+    }
+    .nav-item svg {
+      fill: var(--primary-text);
+      width: 24px;
+      height: 24px;
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .profile-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 30px;
+      width: 100%;
+      max-width: 800px;
+      box-shadow: 0 4px 10px var(--shadow-light);
+      margin-bottom: 30px;
+      position: relative;
+    }
+    .profile-card h2 {
+      margin-bottom: 20px;
+      color: var(--primary-text);
+      text-align: center;
+      font-size: 1.5rem;
+    }
+    .profile-edit-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      background: #fff;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 5px var(--shadow-light);
+    }
+    .profile-edit-form label {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .profile-edit-form input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--shadow-light);
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    .profile-edit-form button {
+      align-self: flex-start;
+      background: var(--button-bg);
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: background var(--transition-speed);
+    }
+    .profile-edit-form button:hover {
+      background: var(--accent-positive);
+    }
+
+    /* CHARTS SECTION */
+    .charts-section {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 30px;
+    }
+    .chart-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 10px var(--shadow-light);
+      margin-bottom: 20px;
+    }
+    .chart-card h3 {
+      margin-bottom: 15px;
+      color: var(--primary-text);
+      text-align: center;
+      font-size: 1.3rem;
+    }
+    canvas {
+      width: 100% !important;
+      height: 300px !important;
+    }
+
+    /* MEDITATION CARDS SECTION */
+    .meditation-cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 800px;
+    }
+    .meditation-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 10px var(--shadow-light);
+      text-align: center;
+      transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .meditation-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px var(--shadow-light);
+    }
+    .meditation-card svg {
+      width: 40px;
+      height: 40px;
+      fill: var(--button-bg);
+      margin-bottom: 10px;
+    }
+    .meditation-card h4 {
+      font-size: 1.2rem;
+      color: var(--primary-text);
+      margin-bottom: 8px;
+    }
+    .meditation-card p {
+      font-size: 0.95rem;
+      color: var(--primary-text);
+      line-height: 1.4;
+    }
+
+    /* CALENDAR SECTION */
+    .calendar-section {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 10px var(--shadow-light);
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 30px;
+    }
+    .calendar-section h3 {
+      margin-bottom: 15px;
+      color: var(--primary-text);
+      text-align: center;
+      font-size: 1.3rem;
+    }
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .calendar-header button {
+      background: var(--button-bg);
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background var(--transition-speed);
+    }
+    .calendar-header button:hover {
+      background: var(--accent-positive);
+    }
+    .calendar-header span {
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+    .calendar-days-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #555;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      text-align: center;
+    }
+    .calendar-day {
+      background: #fff;
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px var(--shadow-light);
+      transition: background var(--transition-speed), color var(--transition-speed);
+      min-height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .calendar-day.disabled {
+      color: #ccc;
+      cursor: not-allowed;
+    }
+    .calendar-day:hover:not(.disabled) {
+      background: var(--button-bg);
+      color: #fff;
+    }
+    .calendar-day.selected {
+      background: var(--button-bg);
+      color: #fff;
+    }
+
+    /* RIGHT PANEL */
+    .right-panel {
+      background: var(--nav-translucent);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      border-left: 1px solid var(--shadow-light);
+      overflow-y: auto;
+    }
+    .right-panel h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-align: center;
+      color: var(--primary-text);
+    }
+
+    /* JOURNAL SECTION */
+    .journal-section {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      width: 100%;
+      box-shadow: 0 4px 10px var(--shadow-light);
+      margin-bottom: 30px;
+    }
+    .journal-section h2 {
+      margin-bottom: 15px;
+      color: var(--primary-text);
+      text-align: center;
+      font-size: 1.3rem;
+    }
+    .journal-section textarea {
+      width: 100%;
+      height: 150px;
+      border: 1px solid var(--shadow-light);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 1rem;
+      resize: vertical;
+      outline: none;
+      transition: border-color var(--transition-speed);
+    }
+    .journal-section textarea:focus {
+      border-color: var(--button-bg);
+    }
+    .journal-section button {
+      margin-top: 10px;
+      background: var(--button-bg);
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: background var(--transition-speed);
+    }
+    .journal-section button:hover {
+      background: var(--accent-positive);
+    }
+    .journal-entries {
+      margin-top: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+      background: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px var(--shadow-light);
+    }
+    .journal-entry-item {
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--shadow-light);
+      padding-bottom: 10px;
+    }
+    .journal-entry-item:last-child {
+      border-bottom: none;
+    }
+
+    /* DAY JOURNAL MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 4px 10px var(--shadow-light);
+      position: relative;
+    }
+    .close-modal {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #aaa;
+      cursor: pointer;
+    }
+    .close-modal:hover {
+      color: #000;
+    }
+    .modal-content h3 {
+      margin-bottom: 20px;
+      text-align: center;
+      color: var(--primary-text);
+    }
+    .modal-journals {
+      max-height: 400px;
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 2px 5px var(--shadow-light);
+    }
+    .modal-entry-item {
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--shadow-light);
+      padding-bottom: 10px;
+    }
+
+    /* MEDITATION MODAL (Audio + Instructions) */
+    .meditation-modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 1100; /* above day journaling modal */
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .meditation-modal-content {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 4px 10px var(--shadow-light);
+      position: relative;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+    }
+    .close-meditation-modal {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #aaa;
+      cursor: pointer;
+    }
+    .close-meditation-modal:hover {
+      color: #000;
+    }
+    .meditation-modal-content h3 {
+      color: var(--primary-text);
+      margin-bottom: 10px;
+      font-size: 1.4rem;
+    }
+    .meditation-text {
+      font-size: 1rem;
+      color: var(--primary-text);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .meditation-audio {
+      width: 100%;
+      margin-top: 10px;
+    }
+    .meditation-audio-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    .meditation-audio-controls button {
+      background: var(--button-bg);
+      border: none;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .meditation-audio-controls button:hover {
+      background: var(--accent-positive);
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 992px) {
+      body {
+        grid-template-columns: 60px 1fr 250px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        grid-template-columns: 60px 1fr;
+        grid-template-rows: auto auto;
+        overflow: hidden;
+      }
+      .right-panel {
+        grid-column: 1 / 3;
+        grid-row: 2 / 3;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <a href="{% url 'index' %}">
+      <div class="nav-item" title="Home">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 3l10 9h-3v9h-14v-9h-3z"/>
+        </svg>
+      </div>
+    </a>
+    <a href="{% url 'chatbot' %}">
+      <div class="nav-item" title="Chatbot">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M4 10h16v2h-16zm2 5h12v2h-12z"/>
+        </svg>
+      </div>
+    </a>
+    <a href="{% url 'profile' %}">
+      <div class="nav-item" title="Profile">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 12c2.7 0 4.5-2 4.5-4.5S14.7 3 12 3 7.5 5 7.5 7.5 9.3 12 12 12zM12 14c-3 0-9 1.5-9 4.5V21h18v-2.5C21 15.5 15 14 12 14z"/>
+        </svg>
+      </div>
+    </a>
+    <a href="{% url 'logoutsystem' %}">
+      <div class="nav-item" title="Logout">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M14 7v-3.5c0-0.276-0.224-0.5-0.5-0.5h-9c-0.276 0-0.5 0.224-0.5 0.5v17c0 0.276 0.224 0.5 0.5 0.5h9c0.276 0 0.5-0.224 0.5-0.5v-3.5h-2v2h-7v-15h7v2h2zM18.293 7.293l-5.293 5.293 5.293 5.293 1.414-1.414-3.879-3.879h8.172v-2h-8.172l3.879-3.879z"/>
+        </svg>
+      </div>
+    </a>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <!-- Profile Information -->
+    <div class="profile-card">
+      <h2>Your Profile</h2>
+      <form class="profile-edit-form" method="POST" action="{% url 'update_profile' %}">
+        {% csrf_token %}
+        <div>
+          <label for="name">Name:</label>
+          <input type="text" name="name" id="id_name" value="{{ userprofile.name }}">
+        </div>
+        <div>
+          <label for="email">Email:</label>
+          <input type="text" name="email" id="id_email"
+                 value="{{ userprofile.email|default_if_none:userprofile.user.email }}">
+        </div>
+        <div>
+          <label for="issue">Issue:</label>
+          <input type="text" name="issue" id="id_issue" value="{{ userprofile.issue }}">
+        </div>
+        <button type="submit">Save Profile</button>
+      </form>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <div class="chart-card">
+        <h3>Predicted Mood Boost</h3>
+        <canvas id="moodChart"></canvas>
+      </div>
+
+      <h2 style="text-align:center;">5-7 Min Exercises (Classified by Issue)</h2>
+
+      <div class="meditation-cards-container">
+        <!-- Anxiety Card -->
+        <div class="meditation-card" onclick="openMeditationModal(0)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 2.5 1.31 4.67 3.29 6.09C7.41 16.26 7 17.08 7 18v3c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-3c0-.92-.41-1.74-1.29-2.91C17.69 13.67 19 11.5 19 9c0-3.87-3.13-7-7-7z"/>
+          </svg>
+          <h4>For Anxiety</h4>
+          <p>Calming Breath Exercise to reduce anxious thoughts.</p>
+        </div>
+
+        <!-- Stress Card -->
+        <div class="meditation-card" onclick="openMeditationModal(1)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M19 3h-14c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-14c0-1.103-.897-2-2-2zm-2 14h-10v-2h10v2z"/>
+          </svg>
+          <h4>For Stress</h4>
+          <p>Gratitude Reflection, focusing on present positives.</p>
+        </div>
+
+        <!-- Sleep Card -->
+        <div class="meditation-card" onclick="openMeditationModal(2)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 4.248c-3.148-5.402-12-3.825-12 2.944 0 3.414 2.61 6.185 6.465 8.609L12 21l5.535-5.199C21.39 13.433 24 10.662 24 7.248c0-6.769-8.852-8.346-12-2.944z"/>
+          </svg>
+          <h4>For Better Sleep</h4>
+          <p>Body Scan to gently transition into restful sleep.</p>
+        </div>
+
+        <!-- Depression Card -->
+        <div class="meditation-card" onclick="openMeditationModal(3)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 12c2.7 0 4.5-2 4.5-4.5S14.7 3 12 3 7.5 5 7.5 7.5 9.3 12 12 12zM12 14c-3 0-9 1.5-9 4.5V21h18v-2.5C21 15.5 15 14 12 14z"/>
+          </svg>
+          <h4>For Low Mood</h4>
+          <p>Visualization to uplift and spark a positive mindset.</p>
+        </div>
+
+        <!-- Self-Esteem Card -->
+        <div class="meditation-card" onclick="openMeditationModal(4)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M4 10h16v2h-16zm2 5h12v2h-12z"/>
+          </svg>
+          <h4>For Self-Esteem</h4>
+          <p>Mantra Repetition: affirm personal worth and capability.</p>
+        </div>
+
+        <!-- Focus Card -->
+        <div class="meditation-card" onclick="openMeditationModal(5)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M19 3h-14c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-14c0-1.103-.897-2-2-2zm-2 14h-10v-2h10v2z"/>
+          </svg>
+          <h4>For Focus</h4>
+          <p>Loving-Kindness (Metta) to center and sharpen the mind.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendar Section -->
+    <div class="calendar-section">
+      <h3>Journal Calendar</h3>
+      <div class="calendar-header">
+        <button onclick="prevMonth()">&lt; Prev</button>
+        <span id="current-month-year"></span>
+        <button onclick="nextMonth()">Next &gt;</button>
+      </div>
+      <div class="calendar-days-header">
+        <div>Sun</div>
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div>Sat</div>
+      </div>
+      <div class="calendar-grid" id="calendar-grid"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="journal-section">
+      <h2>Journaling (Today)</h2>
+      <form action="{% url 'save_journal' %}" method="POST">
+        {% csrf_token %}
+        <textarea name="journal_entry" placeholder="Write your thoughts here..."></textarea>
+        <button type="submit">Save Entry</button>
+      </form>
+
+      {% if journal_entries %}
+      <div class="journal-entries">
+        <h3>All Recent Entries</h3>
+        {% for entry in journal_entries %}
+          <div class="journal-entry-item">
+            <strong>{{ entry.journal_date }} ({{ entry.created_at|date:"H:i" }}):</strong><br>
+            {{ entry.content }}
+          </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- MODAL for day-specific journal entries -->
+  <div id="journalDayModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeDayModal">&times;</span>
+      <h3 id="modal-date-title"></h3>
+      <div class="modal-journals" id="modal-journals"></div>
+    </div>
+  </div>
+
+  <!-- MODAL for meditation instructions + audio -->
+  <div id="meditationModal" class="meditation-modal">
+    <div class="meditation-modal-content">
+      <span class="close-meditation-modal" id="closeMeditationModal">&times;</span>
+      <h3 id="meditationTitle"></h3>
+      <div class="meditation-text" id="meditationText"></div>
+      <audio id="meditationAudio" class="meditation-audio" controls>
+        <source src="" id="meditationAudioSource" type="audio/mpeg" />
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+  </div>
+
+  <script>
+    /**************************************************************
+     *          DAY JOURNAL MODAL (viewing daily entries)        *
+     **************************************************************/
+    const closeDayModal = document.getElementById('closeDayModal');
+    closeDayModal.addEventListener('click', () => {
+      document.getElementById('journalDayModal').style.display = 'none';
+    });
+
+    window.onclick = function(e){
+      const dayModal = document.getElementById('journalDayModal');
+      if(e.target === dayModal){
+        dayModal.style.display = 'none';
+      }
+    };
+
+    /**************************************************************
+     *       PREDICTED MOOD BOOST CHART & CALENDAR LOGIC         *
+     **************************************************************/
+    document.addEventListener('DOMContentLoaded', () => {
+      // Mood Chart (Predicted Mood Boost)
+      const ctxMood = document.getElementById('moodChart').getContext('2d');
+      new Chart(ctxMood, {
+        type: 'line',
+        data: {
+          labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+          datasets: [{
+            label: 'Predicted Mood Boost',
+            data: [2, 4, 3, 7, 12, 15, 20],
+            backgroundColor: 'rgba(112, 145, 230, 0.2)',
+            borderColor: 'rgba(112, 145, 230, 1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: 'rgba(112, 145, 230, 1)',
+            pointRadius: 5,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 20,
+              ticks: { stepSize: 2 },
+              title: {
+                display: true,
+                text: 'Boost Level',
+                color: '#555',
+                font: { size:14, weight:'bold' }
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Days',
+                color: '#555',
+                font: { size:14, weight:'bold' }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              titleColor:'#fff',
+              bodyColor:'#fff',
+              borderColor:'#fff',
+              borderWidth:1
+            }
+          }
+        }
+      });
+
+      // Initialize calendar for journaling
+      renderCalendar();
+    });
+
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth(); // 0-11
+    let selectedDay = null;
+
+    function renderCalendar() {
+      const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      document.getElementById('current-month-year').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+      const calendarGrid = document.getElementById('calendar-grid');
+      calendarGrid.innerHTML = '';
+
+      const firstDay = new Date(currentYear, currentMonth, 1);
+      const startingDay = firstDay.getDay(); // Sunday=0 ...
+      const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
+
+      // Add blanks for days before the first day of the month
+      for(let i=0; i< startingDay; i++){
+        const blank = document.createElement('div');
+        blank.classList.add('calendar-day','disabled');
+        calendarGrid.appendChild(blank);
+      }
+
+      // Add actual days
+      for(let d=1; d<=daysInMonth; d++){
+        const dayEl = document.createElement('div');
+        dayEl.classList.add('calendar-day');
+        dayEl.textContent = d;
+        dayEl.addEventListener('click', ()=> selectDate(d));
+        if(selectedDay && selectedDay.day === d && selectedDay.month===currentMonth && selectedDay.year===currentYear){
+          dayEl.classList.add('selected');
+        }
+        calendarGrid.appendChild(dayEl);
+      }
+    }
+
+    function selectDate(day) {
+      selectedDay = { year: currentYear, month: currentMonth, day: day };
+      renderCalendar();
+      const pad = (num) => String(num).padStart(2,'0');
+      const dateString = `${selectedDay.year}-${pad(selectedDay.month+1)}-${pad(selectedDay.day)}`;
+      showDayJournals(dateString);
+    }
+
+    function prevMonth() {
+      currentMonth--;
+      if(currentMonth <0){
+        currentMonth = 11;
+        currentYear--;
+      }
+      renderCalendar();
+    }
+
+    function nextMonth() {
+      currentMonth++;
+      if(currentMonth > 11){
+        currentMonth=0;
+        currentYear++;
+      }
+      renderCalendar();
+    }
+
+    function showDayJournals(dateString) {
+      // GET request to /get_journals_for_day?date=yyyy-mm-dd or similar endpoint
+      fetch(`/get_journals_for_day?date=${dateString}`)
+        .then(res=>res.json())
+        .then(data=>{
+          if(data.error){
+            alert(data.error);
+          } else {
+            const modal = document.getElementById('journalDayModal');
+            const modalTitle = document.getElementById('modal-date-title');
+            const modalJournals = document.getElementById('modal-journals');
+            modalTitle.textContent = `Journal Entries on ${dateString}`;
+            modalJournals.innerHTML = '';
+
+            if(data.entries && data.entries.length>0){
+              data.entries.forEach(entry=>{
+                const div = document.createElement('div');
+                div.classList.add('modal-entry-item');
+                div.innerHTML = `<strong>${entry.created_at}:</strong><br>${entry.content}`;
+                modalJournals.appendChild(div);
+              });
+            } else {
+              modalJournals.innerHTML = '<p>No journal entries for this day.</p>';
+            }
+            modal.style.display='flex';
+          }
+        })
+        .catch(err=>{
+          console.error(err);
+          alert('Error fetching day journals.');
+        });
+    }
+
+    /**************************************************************
+     *         MEDITATION MODAL (Audio + Instructions)           *
+     **************************************************************/
+    const meditationModal = document.getElementById('meditationModal');
+    const closeMeditationModalBtn = document.getElementById('closeMeditationModal');
+
+    const meditationTitle = document.getElementById('meditationTitle');
+    const meditationText = document.getElementById('meditationText');
+    const meditationAudio = document.getElementById('meditationAudio');
+    const meditationAudioSource = document.getElementById('meditationAudioSource');
+
+    // Each object in meditationData now targets a specific issue (anxiety, stress, etc.)
+    const meditationData = [
+      {
+        title: "For Anxiety",
+        text: "A 5-7 minute breathing exercise to ease anxious thoughts. Inhale for 4, hold for 2, exhale for 4. Keep your focus on the rhythm of your breath.",
+        audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+      },
+      {
+        title: "For Stress",
+        text: "A gratitude-based reflection: close your eyes, list 3 small things you're thankful for, and dwell in that appreciation for 5-7 minutes.",
+        audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+      },
+      {
+        title: "For Better Sleep",
+        text: "Perform a gentle body scan from toes to head, releasing tension at each step. Ideal before bed to calm the mind.",
+        audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
+      },
+      {
+        title: "For Low Mood",
+        text: "Visualize a positive, warm place. Engage all senses, noticing sights, sounds, smells to gently lift your mood.",
+        audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"
+      },
+      {
+        title: "For Self-Esteem",
+        text: "Repeat an uplifting mantra like 'I am worthy' with each breath, reinforcing self-confidence and compassion.",
+        audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"
+      },
+      {
+        title: "For Focus",
+        text: "A short loving-kindness (metta) practice to center the mind and sharpen concentration—send positive wishes to yourself and others.",
+        audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"
+      }
+    ];
+
+    function openMeditationModal(index) {
+      if (index < 0 || index >= meditationData.length) return;
+      const {title, text, audio} = meditationData[index];
+
+      // Set content in the modal
+      meditationTitle.textContent = title;
+      meditationText.textContent = text;
+      meditationAudioSource.src = audio;
+
+      // Reload audio to ensure it starts from the beginning
+      meditationAudio.load();
+
+      // Show the modal
+      meditationModal.style.display = "flex";
+    }
+
+    closeMeditationModalBtn.addEventListener('click', () => {
+      // Pause audio and reset time
+      meditationAudio.pause();
+      meditationAudio.currentTime = 0;
+      meditationModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+      if(e.target === meditationModal) {
+        // Pause audio and reset time on outside-click
+        meditationAudio.pause();
+        meditationAudio.currentTime = 0;
+        meditationModal.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

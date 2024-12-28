@@ -1,0 +1,1 @@
+web: gunicorn mentalai.wsgi --log-file -

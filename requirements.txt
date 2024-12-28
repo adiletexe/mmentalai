@@ -40,3 +40,4 @@ websockets==10.4
 whitenoise==6.5.0
 yahoo-fin==0.8.9.1
 zipp==3.17.0
+openai==0.27.2

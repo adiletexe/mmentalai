@@ -133,14 +133,14 @@ def profile(request):
 
 def loginsystem(request):
     if request.user.is_authenticated:
-        return redirect('profile')
+        return redirect('chatbot')
     if request.method == "GET":
         return render(request, 'login.html', {'form': AuthenticationForm()})
     else:
         user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
         if user is not None:
             login(request, user)
-            return redirect('profile')
+            return redirect('chatbot')
         else:
             return render(request, 'login.html', {'form': AuthenticationForm(), 'error': 'Incorrect username or password'})
 
@@ -152,7 +152,7 @@ def logoutsystem(request):
 
 def signupsystem(request):
     if request.user.is_authenticated:
-        return redirect('profile')
+        return redirect('chatbot')
     if request.method == "GET":
         return render(request, 'registration.html', {'form': UserCreationForm()})
     else:
@@ -165,7 +165,7 @@ def signupsystem(request):
                 login(request, user)
                 user_profile = UserProfile.objects.create(user=request.user)
                 user_profile.save()
-                return redirect('profile')
+                return redirect('chatbot')
             except IntegrityError:
                 return render(request, 'registration.html', {'form': UserCreationForm(), 'error': 'Username is already taken!'})
 

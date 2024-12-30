@@ -133,4 +133,4 @@ MEDIA_ROOT = BASE_DIR / 'static/mainapp/images'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = ['https://mmentalai.up.railway.app', 'https://mmentalai.up.railway.app/']
+CSRF_TRUSTED_ORIGINS = ['https://mentalai.net', 'https://mentalai.net/', 'https://mmentalai.up.railway.app', 'https://mmentalai.up.railway.app/']

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mental AI - Your AI Companion for Mental Wellness</title>
   <!-- Google Fonts -->
@@ -129,7 +129,7 @@
       width: 100%;
     }
 
-    /* Toggle Button */
+    /* Toggle Button (optional) */
     .toggle-btn {
       margin-left: 25px;
       cursor: pointer;
@@ -146,7 +146,7 @@
     }
 
     /* Menu Icon for Mobile */
-    #menu-icon {
+    .menu-icon {
       display: none;
       margin-left: 25px;
       font-size: 25px;
@@ -157,7 +157,7 @@
       transition: color var(--transition-speed);
     }
 
-    #menu-icon:hover {
+    .menu-icon:hover {
       color: var(--color-secondary);
     }
 
@@ -452,12 +452,13 @@
     }
 
     /***************************************************************
-    *                    TESTIMONIALS SECTION                     *
+    *                     TESTIMONIALS SECTION                    *
     ***************************************************************/
     .testimonials {
       padding: 80px 20px;
       background-color: #ffffff;
       text-align: center;
+      position: relative;
     }
 
     .testimonials h2 {
@@ -468,64 +469,62 @@
       animation: fadeIn var(--fade-duration) ease;
     }
 
-    .testimonial-container {
+    /* EXACTLY 2 columns, 2 rows for 4 cards */
+    .testimonial-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
+      grid-template-columns: 1fr 1fr;  /* two columns */
+      grid-auto-rows: auto;           /* auto height, total 2 rows */
+      gap: 30px;
       max-width: 1200px;
-      margin: 0 auto 40px auto;
-      justify-items: center;
+      margin: 0 auto;
+      padding: 0 20px;
     }
 
-    .testimonial {
-      background-color: var(--color-card);
+    .testimonial-card {
+      background: var(--color-card);
       border-radius: 15px;
+      padding: 25px 20px;
       box-shadow: 0 4px 6px var(--color-shadow);
-      padding: 30px 20px;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity var(--fade-duration) ease, transform var(--fade-duration) ease;
+      text-align: left;
+      transition: transform var(--transition-speed), background-color var(--transition-speed);
+      cursor: default;
+      position: relative;
+      animation: fadeIn var(--fade-duration) ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start; /* keep content at the top */
     }
 
-    .testimonial.visible {
-      opacity: 1;
-      transform: translateY(0);
+    .testimonial-card:hover {
+      transform: translateY(-5px);
+      background-color: #f7f4ff;
     }
 
-    .testimonial p {
+    .testimonial-author {
+      font-weight: 600;
+      color: var(--color-primary);
+      margin-bottom: 5px;
+      font-size: 1rem;
+    }
+
+    .testimonial-rating {
+      margin-bottom: 10px;
+      color: #ffcc00; /* star color */
+      font-size: 1.1rem;
+    }
+
+    .testimonial-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 10px 0 10px;
+      color: var(--color-primary);
+    }
+
+    .testimonial-text {
       font-size: 1rem;
       color: var(--color-primary);
-      margin-bottom: 10px;
-      line-height: 1.4;
-    }
-
-    .testimonial .author {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--color-secondary);
-    }
-
-    .carousel-controls {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-    }
-
-    .carousel-controls button {
-      padding: 10px 20px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 50px;
-      background-color: var(--color-secondary);
-      color: var(--color-white);
-      cursor: pointer;
-      box-shadow: 0 2px 5px var(--color-shadow);
-      transition: background-color var(--transition-speed), transform var(--transition-speed);
-    }
-
-    .carousel-controls button:hover {
-      background-color: var(--color-primary);
-      transform: translateY(-2px);
+      line-height: 1.6;
+      margin-bottom: 15px;
     }
 
     /***************************************************************
@@ -603,7 +602,7 @@
     *                         MEDIA QUERIES                       *
     ***************************************************************/
     @media screen and (max-width: 992px) {
-      #menu-icon {
+      .menu-icon {
         display: inline-block;
       }
 
@@ -617,6 +616,15 @@
 
       .hero-content p {
         font-size: 1rem;
+      }
+
+      /* On smaller screens, stack each testimonial card in one column */
+      .testimonial-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .testimonial-card {
+        text-align: center;
       }
     }
 
@@ -665,7 +673,6 @@
       <li><a href="#how-to">How It Works</a></li>
       <li><a href="#testimonials">Testimonials</a></li>
       <li><a href="#contact">Contact</a></li>
-
       <!-- If user is authenticated, show Start Therapy; otherwise Sign Up & Login -->
       {% if user.is_authenticated %}
         <li><a href="{% url 'profile' %}">Start Therapy</a></li>
@@ -674,8 +681,6 @@
         <li><a href="{% url 'loginsystem' %}">Login</a></li>
       {% endif %}
     </ul>
-    <!-- Dark Mode Toggle (still placeholder) -->
-    <button class="toggle-btn" id="theme-toggle" aria-label="Toggle Dark Mode">🌓</button>
     <!-- Mobile Menu Icon -->
     <button class="menu-icon" id="menu-icon" aria-label="Toggle Menu">☰</button>
   </nav>
@@ -687,7 +692,6 @@
     <li><a href="#how-to">How It Works</a></li>
     <li><a href="#testimonials">Testimonials</a></li>
     <li><a href="#contact">Contact</a></li>
-
     {% if user.is_authenticated %}
       <li><a href="{% url 'profile' %}">Start Therapy</a></li>
     {% else %}
@@ -701,8 +705,9 @@
     <div class="hero-content">
       <h1>Your AI Companion for Mental Wellness</h1>
       <p>
-        Experience personalized support and guidance on your journey to better
-        mental health with our AI-powered platform.
+        Over 1,000 teenagers trust Mental AI for tackling mild mental health issues such as academic stress, mood swings, and
+        social anxiety. This AI-Powered Cognitive Behavioral Therapy will help you to transform your chaos into clarity.
+        Chats are secured by double end-to-end encryption.
       </p>
 
       <!-- If user is authenticated, go to profile; else go to login -->
@@ -712,7 +717,7 @@
         <button class="btn" onclick="window.location.href='{% url 'loginsystem' %}'">Start Your Journey</button>
       {% endif %}
 
-      <div class="subtext">Over 10,000+ users trust Mental AI.</div>
+      <div class="subtext">Backed up with neuroscience and built under supervision of PhD psychologists</div>
     </div>
   </section>
 
@@ -726,10 +731,10 @@
             d="M12 3C6.486 3 2 6.589 2 11c0 2.38 1.031 4.56 2.758 6.095L2 21l4.905-2.758C10.44 22.969 12.62 24 15 24c4.411 0 8-3.486 8-8s-3.589-8-8-8zm0 14c-2.761 0-5-2.239-5-5s2.239-5 5-5 5 2.239 5 5-2.239 5-5 5z"
           ></path>
         </svg>
-        <h3>Personalized Chat</h3>
+        <h3>Cognitive Behavioral Therapy</h3>
         <p>
-          Engage in evidence-based, empathetic AI conversations tailored to your
-          unique needs.
+          We deliver CBT-inspired exercises, grounded in evidence-based
+          practices and verified by mental health professionals.
         </p>
       </div>
       <div class="feature fade-in">
@@ -738,10 +743,10 @@
             d="M12 4.248c-3.148-5.402-12-3.825-12 2.944 0 3.414 2.61 6.185 6.465 8.609L12 21l5.535-5.199C21.39 13.433 24 10.662 24 7.248c0-6.769-8.852-8.346-12-2.944z"
           ></path>
         </svg>
-        <h3>Mood Tracking</h3>
+        <h3>Neuroscience-Based Guidance</h3>
         <p>
-          Log your emotions and track trends to gain better self-awareness and
-          insights.
+          Access curated tips informed by neuroscience to handle mood
+          fluctuations, academic pressure, and social interactions.
         </p>
       </div>
       <div class="feature fade-in">
@@ -750,10 +755,10 @@
             d="M19 3h-14c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-14c0-1.103-.897-2-2-2zm-2 14h-10v-2h10v2zm0-4h-10v-2h10v2zm0-4h-10v-2h10v2z"
           ></path>
         </svg>
-        <h3>Guided Exercises</h3>
+        <h3>Maximum Privacy & Security</h3>
         <p>
-          Access mindfulness and relaxation techniques to help you destress and
-          stay centered.
+          Chats are secured by double end-to-end encrption. Your
+          conversations remain fully confidential, and are deleted once you refresh the page.
         </p>
       </div>
     </div>
@@ -761,7 +766,7 @@
 
   <!-- HOW TO USE SECTION -->
   <section class="how-to" id="how-to">
-    <h2>How to Use Mental AI</h2>
+    <h2>How It Works</h2>
     <div class="steps-container">
       <div class="step fade-in">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -769,8 +774,11 @@
             d="M19 3h-14c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-14c0-1.103-.897-2-2-2zm-2 14h-10v-2h10v2zm0-4h-10v-2h10v2zm0-4h-10v-2h10v2z"
           ></path>
         </svg>
-        <h3>Sign Up</h3>
-        <p>Create your free account and set up your personal profile in minutes.</p>
+        <h3>1. Sign Up</h3>
+        <p>
+          Create your account to unlock tailored sessions with our private
+          LLM, guided by psychologists and PhDs.
+        </p>
       </div>
       <div class="step fade-in">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -778,9 +786,10 @@
             d="M12 2C8.13401 2 5 5.13401 5 9c0 3.866 3.13401 7 7 7s7-3.134 7-7c0-3.86599-3.134-7-7-7zm0 12c-2.76142 0-5-2.23858-5-5s2.23858-5 5-5 5 2.23858 5 5-2.23858 5-5 5z"
           ></path>
         </svg>
-        <h3>Customize</h3>
+        <h3>2. Explore</h3>
         <p>
-          Tailor the AI settings to match your personal mental wellness goals.
+          Personalize your therapy approach with tips for mild mental
+          health issues like academic stress, social anxiety, and more.
         </p>
       </div>
       <div class="step fade-in">
@@ -789,63 +798,66 @@
             d="M19 3h-14c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-14c0-1.103-.897-2-2-2zm-2 14h-10v-2h10v2zm0-4h-10v-2h10v2zm0-4h-10v-2h10v2z"
           ></path>
         </svg>
-        <h3>Engage</h3>
+        <h3>3. Engage</h3>
         <p>
-          Start interacting with your AI companion through chat, mood tracking,
-          and exercises.
+          Start interactive chat-based sessions with advanced AI,
+          ensuring your data is protected at every step.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- TESTIMONIALS SECTION -->
+  <!-- TESTIMONIALS SECTION (GRID) -->
   <section class="testimonials" id="testimonials">
     <h2>Testimonials</h2>
-    <div class="testimonial-container">
-      <div class="testimonial visible">
-        <p>
-          "Mental AI has transformed how I manage my anxiety. The personalized
-          chats are incredibly supportive."
+    <!-- 4 reviews, arranged in exactly 2 columns & 2 rows -->
+    <div class="testimonial-grid">
+      <!-- Card #1 -->
+      <div class="testimonial-card">
+        <div class="testimonial-author">Aisulu, 17 – High School Senior</div>
+        <div class="testimonial-rating">★★★★★</div>
+        <div class="testimonial-title">Helps With Mood Swings</div>
+        <p class="testimonial-text">
+          Mental AI gave me daily CBT tips to manage my mood swings.
+          It feels like a supportive counselor whenever I need it.
         </p>
-        <div class="author">- Sarah T.</div>
       </div>
-      <div class="testimonial fade-in">
-        <p>
-          "The mood tracking feature helps me understand my emotions better and
-          track my progress over time."
+      <!-- Card #2 -->
+      <div class="testimonial-card">
+        <div class="testimonial-author">Mansur, 19 – College Freshman</div>
+        <div class="testimonial-rating">★★★★☆</div>
+        <div class="testimonial-title">Calm During Exams</div>
+        <p class="testimonial-text">
+          The academic stress was intense, but the AI's mindfulness
+          exercises kept me grounded. I love how secure the platform is!
         </p>
-        <div class="author">- Michael B.</div>
       </div>
-      <div class="testimonial fade-in">
-        <p>
-          "Guided exercises are perfect for my daily relaxation and have
-          significantly reduced my stress levels."
+      <!-- Card #3 -->
+      <div class="testimonial-card">
+        <div class="testimonial-author">Dariya, 18 – Part-Time Worker</div>
+        <div class="testimonial-rating">★★★★★</div>
+        <div class="testimonial-title">Feels So Safe</div>
+        <p class="testimonial-text">
+          Knowing there's encryption behind every chat
+          makes me trust the system completely. It's my safe space.
         </p>
-        <div class="author">- Emily R.</div>
       </div>
-      <div class="testimonial fade-in">
-        <p>
-          "With Mental AI, I feel more in control of my mental health journey.
-          Highly recommend it to everyone!"
+      <!-- Card #4 -->
+      <div class="testimonial-card">
+        <div class="testimonial-author">Aruzhan, 16 – Gamer</div>
+        <div class="testimonial-rating">★★★★☆</div>
+        <div class="testimonial-title">Social Anxiety Relief</div>
+        <p class="testimonial-text">
+          I used to feel anxious around new people. Mental AI's gentle,
+          neuroscience-based approach really helps me relax in social settings.
         </p>
-        <div class="author">- David L.</div>
       </div>
-    </div>
-    <!-- CAROUSEL CONTROLS -->
-    <div class="carousel-controls">
-      <button id="prev-btn">Previous</button>
-      <button id="next-btn">Next</button>
     </div>
   </section>
 
   <!-- FOOTER SECTION -->
   <section class="footer" id="contact">
-    <div class="social-icons">
-      <a href="#" aria-label="Facebook">🔵</a>
-      <a href="#" aria-label="Twitter">🐦</a>
-      <a href="#" aria-label="Instagram">📸</a>
-      <a href="#" aria-label="LinkedIn">🔗</a>
-    </div>
+    <p>Any questions? Contact @adiletexe in Telegram</p>
     <form>
       <input
         type="email"
@@ -873,53 +885,6 @@
     });
 
     /***************************************************************
-    *                   TESTIMONIALS CAROUSEL                     *
-    ***************************************************************/
-    const testimonials = document.querySelectorAll(".testimonial");
-    let currentTestimonialIndex = 0;
-    const totalTestimonials = testimonials.length;
-
-    const prevBtn = document.getElementById("prev-btn");
-    const nextBtn = document.getElementById("next-btn");
-
-    // Show 4 testimonials at a time
-    function showTestimonials(index) {
-      testimonials.forEach((testimonial, i) => {
-        if (i >= index && i < index + 4) {
-          testimonial.classList.add("visible");
-        } else {
-          testimonial.classList.remove("visible");
-        }
-      });
-    }
-
-    showTestimonials(currentTestimonialIndex);
-
-    prevBtn.addEventListener("click", () => {
-      if (currentTestimonialIndex - 4 >= 0) {
-        currentTestimonialIndex -= 4;
-        showTestimonials(currentTestimonialIndex);
-      }
-    });
-
-    nextBtn.addEventListener("click", () => {
-      if (currentTestimonialIndex + 4 < totalTestimonials) {
-        currentTestimonialIndex += 4;
-        showTestimonials(currentTestimonialIndex);
-      }
-    });
-
-    // Optional auto-slide
-    // setInterval(() => {
-    //   if (currentTestimonialIndex + 4 < totalTestimonials) {
-    //     currentTestimonialIndex += 4;
-    //   } else {
-    //     currentTestimonialIndex = 0;
-    //   }
-    //   showTestimonials(currentTestimonialIndex);
-    // }, 10000);
-
-    /***************************************************************
     *                    MOBILE MENU TOGGLE                       *
     ***************************************************************/
     const menuIcon = document.getElementById("menu-icon");
@@ -932,11 +897,21 @@
     /***************************************************************
     *                       DARK MODE TOGGLE                      *
     ***************************************************************/
+    // Optional. If you want a dark mode toggle, add your logic here.
+    // For now, it's just a placeholder alert.
+    // <button class="toggle-btn" id="theme-toggle" aria-label="Toggle Dark Mode">🌓</button> 
+    // can be placed in the navbar if you like.
+    /*
     const toggleBtn = document.getElementById("theme-toggle");
     toggleBtn.addEventListener("click", function() {
-      // Placeholder alert; replace with real theme toggle if desired
       alert("Dark mode toggle placeholder!");
     });
+    */
+
+    /***************************************************************
+    *                    (OPTIONAL) ADDITIONAL SCRIPTS            *
+    ***************************************************************/
+    // You can add more scripts here if needed (e.g., for advanced features)
   </script>
 </body>
 </html>
